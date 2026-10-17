@@ -1,0 +1,25 @@
+{
+  "name": "tusupercardweb",
+  "version": "1.1.0",
+  "description": "TuSuperCard · Tarjeta Digital Inteligente y Hub de Conexiones QR Interactivas en 3D",
+  "scripts": {
+    "start": "npx -y serve . -l 3000",
+    "dev": "npx -y serve . -l 3000"
+  },
+  "keywords": [
+    "digital-business-card",
+    "smart-card",
+    "qr-code",
+    "portfolio",
+    "links-hub",
+    "3d-cards",
+    "web-audio",
+    "pwa"
+  ],
+  "author": "Máximo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maximoGs/TuSuperCardWeb.git"
+  }
+}

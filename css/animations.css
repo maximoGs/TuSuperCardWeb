@@ -1,0 +1,120 @@
+/**
+ * ============================================================================
+ * TUSUPERCARD - ANIMACIONES Y EFECTOS VISUALES 3D
+ * ============================================================================
+ */
+
+/* Giro Suave y Continuo */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinSlowReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Pulso Sutil de Brillo */
+@keyframes gentlePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 8px var(--gold-primary));
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+    filter: drop-shadow(0 0 16px var(--gold-light));
+  }
+}
+
+/* Levitación Suave en 3D */
+@keyframes floatSoft {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Resplandor de Bordes Tecnológicos */
+@keyframes borderGlowPulse {
+  0%, 100% {
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+  }
+  50% {
+    border-color: rgba(56, 189, 248, 0.65);
+    box-shadow: 0 0 28px rgba(56, 189, 248, 0.35);
+  }
+}
+
+/* Variaciones de Resplandor por Categoría y Tarjeta */
+.glow-gold {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+}
+
+.glow-sapphire {
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+}
+
+.glow-ruby {
+  box-shadow: 0 0 25px rgba(244, 63, 94, 0.35);
+}
+
+.glow-amethyst {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+}
+
+.glow-crystal {
+  box-shadow: 0 0 25px rgba(226, 232, 240, 0.35);
+}
+
+/* Notificación de Colección Vacía */
+.empty-deck-notice {
+  text-align: center;
+  padding: 40px 24px;
+  background: rgba(14, 20, 36, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px dashed rgba(56, 189, 248, 0.35);
+  border-radius: 20px;
+  max-width: 440px;
+  margin: 40px auto;
+}
+
+.empty-sigil {
+  font-size: 2.2rem;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+  animation: gentlePulse 3s infinite ease-in-out;
+}
+
+.empty-title {
+  font-family: var(--font-sans);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.empty-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}

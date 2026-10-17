@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TuSuperCard · Tarjeta Digital Inteligente y Hub de Conexiones QR</title>
+  <meta name="description" content="Plataforma interactiva moderna para compartir perfiles profesionales, proyectos, canales de contacto y códigos QR con físicas 3D.">
+  <meta name="author" content="Máximo">
+  <meta name="theme-color" content="#07090e">
+
+  <!-- Open Graph / Meta Compartir -->
+  <meta property="og:title" content="TuSuperCard · Tarjeta Digital Inteligente y QR Hub">
+  <meta property="og:description" content="Explora enlaces profesionales, proyectos y códigos QR directos con físicas interactivas en 3D.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/og-preview.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TuSuperCard · Tarjeta Digital Inteligente y QR Hub">
+  <meta name="twitter:description" content="Explora enlaces profesionales, proyectos y códigos QR directos con físicas interactivas en 3D.">
+  <meta name="twitter:image" content="assets/og-preview.jpg">
+
+  <!-- Estilos Maestros -->
+  <link rel="stylesheet" href="css/style.css?v=2.0">
+  <link rel="stylesheet" href="css/animations.css?v=2.0">
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body data-active-deck="public">
+
+  <!-- Lienzo Digital de Fondo con Partículas Interactivas -->
+  <canvas id="celestial-bg"></canvas>
+  <div class="ambient-nebula"></div>
+
+  <div class="app-wrapper">
+    <!-- Barra Superior / Header Ejecutivo -->
+    <header class="top-oracle-header">
+      <div class="header-brand">
+        <span class="brand-sigil">◈</span>
+        <span class="brand-name" id="oracle-title-display">TuSuperCard</span>
+      </div>
+
+      <div class="header-controls">
+        <button id="toggle-audio-btn" class="header-btn" title="Activar/Silenciar efectos de sonido">
+          <span class="icon">🔔</span>
+          <span class="label">Sonido</span>
+        </button>
+        <button id="open-altar-btn" class="header-btn altar-btn" title="Gestionar y editar tarjetas">
+          <span class="icon">⚙</span>
+          <span class="label">Panel de Control</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero / Título Principal -->
+    <main>
+      <section class="oracle-hero-section">
+        <div class="oracle-badge">
+          <span>●</span> <span id="owner-name-display">Máximo</span> · <span id="oracle-sub-display">Smart Business Cards</span> <span>●</span>
+        </div>
+        <h1 class="oracle-main-title">PORTAFOLIO & CONEXIONES DIGITALES</h1>
+        <p class="oracle-bio" id="oracle-bio-display">
+          Tarjeta de presentación digital interactiva. Selecciona cualquier tarjeta para ver detalles, copiar accesos directos o escanear el código QR al instante con físicas 3D.
+        </p>
+      </section>
+
+      <!-- Selector de Secciones (Perfil Público vs Contacto Directo) -->
+      <section class="decks-selector-panel">
+        <button class="deck-tab-btn solar active" data-deck="public" title="Ver enlaces públicos y profesionales">
+          <span class="deck-tab-icon">🌐</span>
+          <div class="deck-tab-texts">
+            <span class="deck-tab-title">Perfil Público</span>
+            <span class="deck-tab-sub">Portafolio, GitHub & Redes</span>
+          </div>
+          <span class="deck-tab-count" id="count-public-deck">6 tarjetas</span>
+        </button>
+
+        <button class="deck-tab-btn lunar" data-deck="personal" title="Ver enlaces de contacto directo">
+          <span class="deck-tab-icon">⚡</span>
+          <div class="deck-tab-texts">
+            <span class="deck-tab-title">Contacto Directo</span>
+            <span class="deck-tab-sub">WhatsApp, Calendly & Accesos</span>
+          </div>
+          <span class="deck-tab-count" id="count-personal-deck">6 tarjetas</span>
+        </button>
+      </section>
+
+      <!-- Selector de Modo de Vista (Baraja 3D vs Catálogo Cuadrícula) -->
+      <div class="view-mode-bar">
+        <div class="view-mode-toggle">
+          <button id="view-deck-btn" class="view-btn active" title="Ver tarjetas apiladas en 3D">
+            <span>🎴</span> Baraja 3D
+          </button>
+          <button id="view-grimorio-btn" class="view-btn" title="Ver catálogo completo de tarjetas">
+            <span>▦</span> Catálogo Rápido
+          </button>
+        </div>
+      </div>
+
+      <!-- Escenario 1: Baraja 3D / Abanico -->
+      <section id="deck-stage" aria-label="Tarjetas interactivas en 3D"></section>
+
+      <!-- Escenario 2: Catálogo Completo (Cuadrícula con Buscador y Filtros) -->
+      <section id="grimorio-stage" class="hidden" aria-label="Catálogo completo de tarjetas">
+        <div class="grimorio-controls-bar">
+          <div class="grimorio-search-wrap">
+            <span class="search-sigil">🔍</span>
+            <input type="text" id="grimorio-search-input" placeholder="Buscar por título, categoría o enlace..." class="grimorio-search-input" autocomplete="off">
+            <button id="grimorio-clear-btn" class="grimorio-clear-btn" title="Limpiar búsqueda" style="display: none;">✕</button>
+          </div>
+          <div class="grimorio-filter-pills" id="grimorio-category-pills"></div>
+        </div>
+        <div class="grimorio-grid" id="grimorio-grid"></div>
+      </section>
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="oracle-footer">
+      <div class="footer-divider"></div>
+      <p class="footer-text">
+        Desarrollado con altos estándares web para compartir tarjetas digitales inteligentes · 
+        <a href="https://github.com/maximoGs/TuSuperCardWeb.git" target="_blank" rel="noopener noreferrer" class="footer-link">Código Abierto en GitHub</a>
+      </p>
+      <div class="footer-sigil">◈ ✦ ◈</div>
+    </footer>
+  </div>
+
+  <!-- Modal 1: Vista Detallada de Tarjeta 3D -->
+  <div id="card-reveal-stage" aria-modal="true" role="dialog"></div>
+
+  <!-- Modal 2: Panel de Control y Personalización -->
+  <div id="altar-modal" class="altar-modal-wrap" aria-modal="true" role="dialog">
+    <div class="altar-backdrop" id="altar-backdrop"></div>
+    <div class="altar-window">
+      <!-- Encabezado del Panel -->
+      <div class="altar-header">
+        <div class="altar-title-wrap">
+          <h2>✦ Panel de Gestión & Personalización</h2>
+          <p>Edita tus tarjetas, modifica tu perfil profesional o descarga la configuración para publicar en GitHub Pages.</p>
+        </div>
+        <button class="altar-close-btn" id="close-altar-btn" title="Cerrar panel">✕</button>
+      </div>
+
+      <!-- Pestañas del Panel -->
+      <div class="altar-tabs-nav">
+        <button class="altar-tab-btn active" data-tab="cards">
+          <span>🎴</span> Tarjetas de Enlaces
+        </button>
+        <button class="altar-tab-btn" data-tab="profile">
+          <span>👤</span> Perfil Profesional
+        </button>
+        <button class="altar-tab-btn" data-tab="export">
+          <span>🚀</span> Publicación & Respaldo
+        </button>
+      </div>
+
+      <!-- Panel 1: Gestión de Tarjetas -->
+      <div class="altar-tab-panel active" id="tab-panel-cards">
+        <div class="altar-body">
+          <!-- Columna Izquierda: Tarjetas Existentes -->
+          <div class="altar-section">
+            <div class="altar-section-title">
+              <span>🎴</span> Tarjetas Activas
+              <select id="altar-deck-filter" class="form-select" style="margin-left: auto; padding: 4px 8px; font-size: 0.75rem;">
+                <option value="all">Todas las Secciones</option>
+                <option value="public">Solo Perfil Público</option>
+                <option value="personal">Solo Contacto Directo</option>
+              </select>
+            </div>
+            <div class="altar-cards-scroll" id="altar-cards-list"></div>
+          </div>
+
+          <!-- Columna Derecha: Formulario de Nueva / Edición -->
+          <div class="altar-section" id="altar-form-section">
+            <div class="altar-section-title">
+              <span>✎</span> <span id="altar-form-mode-title">Agregar o Editar Tarjeta</span>
+              <button id="new-card-btn" class="tool-btn" style="margin-left: auto;">+ Nueva Tarjeta</button>
+            </div>
+
+            <form id="altar-card-form" class="altar-form-grid">
+              <div class="form-group">
+                <label for="form-card-deck">Sección de Destino</label>
+                <select id="form-card-deck" class="form-select" required>
+                  <option value="public">🌐 Perfil Público</option>
+                  <option value="personal">⚡ Contacto Directo</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="form-card-numeral">Código / Número (ej: 01, A1)</label>
+                <input type="text" id="form-card-numeral" class="form-input" placeholder="ej: 01" required>
+              </div>
+
+              <div class="form-group">
+                <label for="form-card-archetype">Etiqueta de Tipo (ej: PORTFOLIO)</label>
+                <input type="text" id="form-card-archetype" class="form-input" placeholder="ej: PORTFOLIO, REPOSITORIO" required>
+              </div>
+
+              <div class="form-group">
+                <label for="form-card-category">Categoría</label>
+                <input type="text" id="form-card-category" class="form-input" placeholder="ej: Desarrollo, Social, Contacto" required>
+              </div>
+
+              <div class="form-group full">
+                <label for="form-card-title">Título de la Tarjeta</label>
+                <input type="text" id="form-card-title" class="form-input" placeholder="ej: Mi Sitio Web Profesional" required>
+              </div>
+
+              <div class="form-group full">
+                <label for="form-card-dest">Descripción o Subtítulo</label>
+                <input type="text" id="form-card-dest" class="form-input" placeholder="ej: Casos de estudio y código de proyectos" required>
+              </div>
+
+              <div class="form-group full">
+                <label for="form-card-url">URL de Destino (para el QR y Enlace Directo)</label>
+                <input type="text" id="form-card-url" class="form-input" placeholder="https://tu-sitio.com o wa.me/..." required>
+              </div>
+
+              <div class="form-group">
+                <label for="form-card-sigil">Ícono Representativo</label>
+                <select id="form-card-sigil" class="form-select">
+                  <option value="code">Código / Desarrollo (&lt;/&gt;)</option>
+                  <option value="github">GitHub Oficial</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="telegram">Telegram</option>
+                  <option value="mail">Correo Electrónico</option>
+                  <option value="compass">Brújula / Sitio Web</option>
+                  <option value="scroll">Documento / CV</option>
+                  <option value="hourglass">Agenda / Calendario</option>
+                  <option value="feather">Comunidad / X</option>
+                  <option value="wave">Chat / Mensajería</option>
+                  <option value="antenna">Wi-Fi / Red</option>
+                  <option value="eye">Visual / Portafolio</option>
+                  <option value="chalice">Finanzas / Pagos</option>
+                  <option value="sun">General / Principal</option>
+                  <option value="moon">Acceso Directo</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="form-card-color">Color de Acento</label>
+                <input type="color" id="form-card-color" class="form-input" value="#3b82f6" style="padding: 2px 6px; height: 38px; cursor: pointer;">
+              </div>
+
+              <div class="form-actions-row">
+                <button type="submit" id="form-submit-btn" class="mystic-btn primary-gold" style="width: 100%; justify-content: center;">
+                  <span class="btn-sigil">✓</span> Guardar Tarjeta
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Identidad del Perfil -->
+      <div class="altar-tab-panel" id="tab-panel-profile">
+        <div class="altar-identity-form-wrap">
+          <form id="altar-identity-form" class="altar-form-grid">
+            <div class="form-group">
+              <label for="identity-owner-name">Nombre / Titular del Perfil</label>
+              <input type="text" id="identity-owner-name" class="form-input" placeholder="ej: Máximo" required>
+            </div>
+
+            <div class="form-group">
+              <label for="identity-oracle-title">Título del Hub</label>
+              <input type="text" id="identity-oracle-title" class="form-input" placeholder="ej: TuSuperCard" required>
+            </div>
+
+            <div class="form-group full">
+              <label for="identity-oracle-sub">Subtítulo Profesional / Cargo</label>
+              <input type="text" id="identity-oracle-sub" class="form-input" placeholder="ej: Full Stack Developer & Tech Lead" required>
+            </div>
+
+            <div class="form-group full">
+              <label for="identity-bio">Resumen Profesional / Bio</label>
+              <textarea id="identity-bio" class="form-input" rows="3" placeholder="Breve introducción sobre tus proyectos, especialidad y forma de contacto..."></textarea>
+            </div>
+
+            <div class="form-actions-row">
+              <button type="submit" class="mystic-btn primary-gold" style="justify-content: center; width: 100%;">
+                <span class="btn-sigil">✓</span> Guardar Información de Perfil
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Panel 3: Despliegue y Respaldo -->
+      <div class="altar-tab-panel" id="tab-panel-export">
+        <div class="altar-export-guide">
+          <div class="guide-card">
+            <h3>✦ ¿Cómo publicar tu versión en GitHub Pages gratis?</h3>
+            <ol class="guide-steps">
+              <li>Haz un <strong>Fork</strong> o clon de este repositorio en tu cuenta de GitHub.</li>
+              <li>Personaliza tus tarjetas e información profesional en este panel.</li>
+              <li>Haz clic en <strong>"Descargar cards-data.js"</strong> y reemplaza el archivo en la carpeta <code>js/cards-data.js</code>.</li>
+              <li>Haz <code>git commit</code> y <code>git push</code> a tu repositorio.</li>
+              <li>En GitHub, activa <strong>Settings → Pages → Deploy from branch (main)</strong>. Tu Hub profesional estará en línea.</li>
+            </ol>
+          </div>
+
+          <div class="export-actions-grid">
+            <div class="export-box">
+              <h4>📦 Exportar Archivo de Configuración</h4>
+              <p>Descarga el archivo JavaScript estructurado para desplegarlo directamente en tu repositorio.</p>
+              <button id="export-config-btn" class="mystic-btn primary-gold">
+                <span class="btn-sigil">📥</span> Descargar cards-data.js
+              </button>
+            </div>
+
+            <div class="export-box">
+              <h4>📋 Respaldo en JSON</h4>
+              <p>Guarda o transfiere tu configuración completa en formato JSON para sincronizarla en otros equipos.</p>
+              <div class="mini-btn-group">
+                <button id="copy-json-btn" class="tool-btn">Copiar JSON</button>
+                <button id="import-json-btn" class="tool-btn">Importar JSON</button>
+              </div>
+            </div>
+
+            <div class="export-box danger-box">
+              <h4>⚠️ Restaurar Valores Predeterminados</h4>
+              <p>Restablece las tarjetas y configuración a los valores iniciales de fábrica.</p>
+              <button id="reset-defaults-btn" class="tool-btn danger">Restablecer Originales</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del Panel -->
+      <div class="altar-footer">
+        <div class="altar-footer-note">
+          <span>✦ Todos los cambios se guardan automáticamente en tu navegador.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Esenciales (Orden de Carga) -->
+  <script src="js/qrcode.min.js?v=2.0"></script>
+  <script src="js/cards-data.js?v=2.0"></script>
+  <script src="js/audio.js?v=2.0"></script>
+  <script src="js/celestial-canvas.js?v=2.0"></script>
+  <script src="js/sigils.js?v=2.0"></script>
+  <script src="js/deck-engine.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
+</body>
+</html>
