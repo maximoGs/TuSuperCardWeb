@@ -180,6 +180,7 @@ class SmartCardApp {
     const modal = document.getElementById("altar-modal");
     if (!modal) return;
     modal.classList.add("open");
+    window.syncBodyLock?.();
 
     // Llenar formulario de Identidad
     const ownerInput = document.getElementById("identity-owner-name");
@@ -220,6 +221,7 @@ class SmartCardApp {
   closeAltarModal() {
     const modal = document.getElementById("altar-modal");
     if (modal) modal.classList.remove("open");
+    window.syncBodyLock?.();
   }
 
   renderAltarCardList(filterDeck = "all") {
@@ -470,6 +472,110 @@ ${CardStorageManager.toString()}
   }
 }
 
+// Sincronizador de bloqueo de scroll del fondo cuando hay modales abiertos
+window.syncBodyLock = function() {
+  const cardModalActive = document.getElementById("card-reveal-stage")?.classList.contains("active");
+  const altarModalOpen = document.getElementById("altar-modal")?.classList.contains("open");
+  const supportModalOpen = document.getElementById("support-modal")?.classList.contains("open");
+
+  if (cardModalActive || altarModalOpen || supportModalOpen) {
+    document.body.classList.add("modal-open");
+  } else {
+    document.body.classList.remove("modal-open");
+  }
+};
+
+// ==========================================
+// WIDGET DE VALORACIÓN & APOYO (ALIAS: EL.MISTICO)
+// ==========================================
+class SupportWidget {
+  constructor() {
+    this.modal = document.getElementById("support-modal");
+    this.openBtn = document.getElementById("open-support-btn");
+    this.closeBtn = document.getElementById("close-support-btn");
+    this.backdrop = document.getElementById("support-backdrop");
+    this.copyBtn = document.getElementById("support-copy-alias-btn");
+    this.confirmBtn = document.getElementById("support-confirm-copy");
+    this.alias = "el.mistico";
+
+    this.init();
+  }
+
+  init() {
+    if (!this.modal) return;
+
+    this.openBtn?.addEventListener("click", () => this.open());
+    this.closeBtn?.addEventListener("click", () => this.close());
+    this.backdrop?.addEventListener("click", () => this.close());
+
+    this.copyBtn?.addEventListener("click", () => this.copyAlias());
+    this.confirmBtn?.addEventListener("click", () => this.copyAlias());
+
+    // Soporte para cerrar con tecla Escape
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.modal.classList.contains("open")) {
+        this.close();
+      }
+    });
+  }
+
+  open() {
+    this.modal?.classList.add("open");
+    window.syncBodyLock?.();
+    if (window.smartCardAudio) window.smartCardAudio.playShuffle();
+  }
+
+  close() {
+    this.modal?.classList.remove("open");
+    window.syncBodyLock?.();
+  }
+
+  copyAlias() {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(this.alias);
+    } else {
+      const input = document.createElement("input");
+      input.value = this.alias;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+    }
+
+    if (window.smartCardAudio) window.smartCardAudio.playPortalChime();
+    window.showToast(`✓ Alias "${this.alias}" copiado al portapapeles`);
+
+    // Feedback visual en el botón
+    const labelSpan = this.copyBtn?.querySelector(".copy-label");
+    if (labelSpan) {
+      const oldText = labelSpan.textContent;
+      labelSpan.textContent = "¡Copiado! ✓";
+      this.copyBtn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+      setTimeout(() => {
+        labelSpan.textContent = oldText;
+        this.copyBtn.style.background = "";
+      }, 2200);
+    }
+
+    if (this.confirmBtn) {
+      const oldConfirm = this.confirmBtn.innerHTML;
+      this.confirmBtn.innerHTML = `<span class="btn-sigil">✓</span> ¡Alias "${this.alias}" Copiado!`;
+      setTimeout(() => {
+        this.confirmBtn.innerHTML = oldConfirm;
+      }, 2200);
+    }
+  }
+
+  // Micro-animación que atrae la atención de forma sutil tras compartir o descargar
+  nudge() {
+    if (!this.openBtn) return;
+    this.openBtn.classList.remove("nudge-pulse");
+    // Forzar reflow
+    void this.openBtn.offsetWidth;
+    this.openBtn.classList.add("nudge-pulse");
+  }
+}
+
 // Toast de notificación
 window.showToast = function(message) {
   let toast = document.getElementById("mystic-toast");
@@ -494,4 +600,6 @@ window.addEventListener("DOMContentLoaded", () => {
   window.smartCardApp = new SmartCardApp();
   window.oracleApp = window.smartCardApp;
   window.smartCardApp.init();
+
+  window.supportWidget = new SupportWidget();
 });

@@ -116,8 +116,7 @@
     <footer class="oracle-footer">
       <div class="footer-divider"></div>
       <p class="footer-text">
-        Desarrollado con altos estándares web para compartir tarjetas digitales inteligentes · 
-        <a href="https://github.com/maximoGs/TuSuperCardWeb.git" target="_blank" rel="noopener noreferrer" class="footer-link">Código Abierto en GitHub</a>
+        Desarrollado con altos estándares web para compartir tarjetas digitales inteligentes
       </p>
       <div class="footer-sigil">◈ ✦ ◈</div>
     </footer>
@@ -330,6 +329,68 @@
         <div class="altar-footer-note">
           <span>✦ Todos los cambios se guardan automáticamente en tu navegador.</span>
         </div>
+  <!-- Widget Flotante en la Esquina: Apoyar la Herramienta (Alias: el.mistico) -->
+  <div id="support-corner-widget" class="support-corner-widget" aria-label="Valorar y apoyar">
+    <button id="open-support-btn" class="support-trigger-btn" title="Valorar y apoyar la herramienta (Alias: el.mistico)" aria-label="Valorar y apoyar TuSuperCard">
+      <span class="support-trigger-glow"></span>
+      <span class="support-trigger-icon">☕</span>
+      <span class="support-trigger-text">Apoyar · <strong class="support-alias-tag">el.mistico</strong></span>
+    </button>
+  </div>
+
+  <!-- Modal: Valorar y Apoyar TuSuperCard -->
+  <div id="support-modal" class="support-modal-wrap" aria-modal="true" role="dialog">
+    <div class="support-backdrop" id="support-backdrop"></div>
+    <div class="support-window">
+      <button class="support-close-btn" id="close-support-btn" aria-label="Cerrar ventana">✕</button>
+      
+      <div class="support-badge-top">
+        <span>✦</span> VALORACIÓN & COMUNIDAD <span>✦</span>
+      </div>
+
+      <h2 class="support-title">Apoyar a TuSuperCard</h2>
+      <p class="support-lead">
+        Esta herramienta es libre, rápida y de código abierto. Si te sirvió para compartir tus proyectos, clientes o redes, podés colaborar voluntariamente mediante transferencia bancaria o billeteras virtuales.
+      </p>
+
+      <div class="support-alias-card">
+        <div class="support-alias-meta">
+          <span class="support-alias-title">ALIAS PARA TRANSFERIR (ARGENTINA / MP)</span>
+          <span class="support-alias-badge">Cualquier Banco / Billetera</span>
+        </div>
+        <div class="support-alias-interactive">
+          <code class="support-alias-value" id="support-alias-val">el.mistico</code>
+          <button id="support-copy-alias-btn" class="support-copy-action-btn" title="Copiar alias el.mistico">
+            <span class="copy-icon">📋</span>
+            <span class="copy-label">Copiar Alias</span>
+          </button>
+        </div>
+        <p class="support-alias-hint">
+          ✓ Válido en Mercado Pago, Ualá, Lemon, Personal Pay, Cuenta DNI y bancos tradicionales de Argentina.
+        </p>
+      </div>
+
+      <div class="support-reasons-grid">
+        <div class="support-reason-card">
+          <span class="reason-icon">🚀</span>
+          <div class="reason-text">
+            <strong>Mantenimiento & Nuevas Físicas 3D</strong>
+            <small>Permite seguir refinando animaciones, soporte PWA y exportación en alta calidad.</small>
+          </div>
+        </div>
+        <div class="support-reason-card">
+          <span class="reason-icon">🛡️</span>
+          <div class="reason-text">
+            <strong>100% Sin Publicidad Ni Rastreo</strong>
+            <small>Sin suscripciones forzadas, tus datos residen únicamente en tu propio dispositivo.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="support-modal-footer">
+        <button id="support-confirm-copy" class="mystic-btn primary-gold" style="width: 100%; justify-content: center;">
+          <span class="btn-sigil">✓</span> Copiar Alias "el.mistico"
+        </button>
       </div>
     </div>
   </div>

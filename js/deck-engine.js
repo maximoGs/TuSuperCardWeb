@@ -20,7 +20,15 @@ class DeckEngine {
 
     // Coordenadas para soporte táctil (swipe en móviles)
     this.touchStartX = 0;
+    this.touchStartY = 0;
     this.touchEndX = 0;
+
+    // Breakpoint donde el abanico se convierte en carrusel deslizable
+    this.compactQuery = window.matchMedia("(max-width: 640px)");
+  }
+
+  isCompactViewport() {
+    return this.compactQuery.matches;
   }
 
   init(cards) {
@@ -75,7 +83,7 @@ class DeckEngine {
           <div class="empty-sigil">🎴</div>
           <p class="empty-title">No hay tarjetas en esta sección</p>
           <p class="empty-desc">Esta colección está vacía. Abre el Panel de Control para agregar tus primeros enlaces.</p>
-          <button class="mystic-btn primary-gold" onclick="document.getElementById('altar-modal').classList.add('open')">
+          <button class="mystic-btn primary-gold" onclick="window.smartCardApp && window.smartCardApp.openAltarModal()">
             <span class="btn-sigil">⚙</span> Agregar Nuevas Tarjetas
           </button>
         </div>
@@ -139,8 +147,13 @@ class DeckEngine {
     document.getElementById("fan-deck-btn")?.addEventListener("click", () => this.toggleSpreadView());
   }
 
-  // Renderiza las tarjetas en un abanico dinámico
+  // Renderiza las tarjetas en un abanico dinámico (o carrusel en móviles)
   renderFannedSpread(activeCards) {
+    if (this.isCompactViewport()) {
+      this.renderSpreadCarousel(activeCards);
+      return;
+    }
+
     const spreadWrap = document.createElement("div");
     spreadWrap.className = "fanned-spread-wrap";
 
@@ -172,6 +185,41 @@ class DeckEngine {
       spreadWrap.appendChild(cardEl);
     });
 
+    this.deckContainer.appendChild(spreadWrap);
+    this.appendSpreadControls();
+  }
+
+  // Carrusel horizontal con scroll-snap: cómodo de deslizar con el pulgar
+  renderSpreadCarousel(activeCards) {
+    const carousel = document.createElement("div");
+    carousel.className = "spread-carousel";
+    carousel.setAttribute("aria-label", "Tarjetas de la sección, deslizá para explorar");
+
+    activeCards.forEach(card => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "spread-carousel-card";
+      item.setAttribute("aria-label", `Abrir tarjeta ${card.numeral} · ${card.title}`);
+      item.innerHTML = `
+        <div class="spread-card-inner">
+          ${this.getCardBackHTML(this.activeDeckType, null, card.numeral)}
+          <div class="spread-card-label">${card.numeral} · ${this.escapeHTML(card.archetype)}</div>
+        </div>
+      `;
+      item.addEventListener("click", () => this.revealCard(card));
+      carousel.appendChild(item);
+    });
+
+    const hint = document.createElement("p");
+    hint.className = "spread-carousel-hint";
+    hint.textContent = "← Deslizá para explorar · Tocá una tarjeta para abrirla →";
+
+    this.deckContainer.appendChild(carousel);
+    this.deckContainer.appendChild(hint);
+    this.appendSpreadControls();
+  }
+
+  appendSpreadControls() {
     const controls = document.createElement("div");
     controls.className = "deck-stack-controls";
     controls.innerHTML = `
@@ -183,7 +231,6 @@ class DeckEngine {
       </button>
     `;
 
-    this.deckContainer.appendChild(spreadWrap);
     this.deckContainer.appendChild(controls);
 
     document.getElementById("collapse-deck-btn")?.addEventListener("click", () => {
@@ -260,12 +307,15 @@ class DeckEngine {
     if (!modal) return;
 
     const activeCards = this.getActiveCards();
-    const currentIndex = activeCards.findIndex(c => c.id === card.id);
+    const currentIndex = Math.max(0, activeCards.findIndex(c => c.id === card.id));
     const hasMultiple = activeCards.length > 1;
 
     modal.classList.add("active");
+    modal.scrollTop = 0;
+    window.syncBodyLock?.();
     modal.innerHTML = `
       <div class="card-reveal-backdrop" id="close-card-backdrop"></div>
+      <button class="reveal-close-fab" id="reveal-close-fab" title="Cerrar (Escape)" aria-label="Cerrar tarjeta">✕</button>
       
       ${hasMultiple ? `
         <button class="modal-nav-btn prev-card-btn" id="modal-prev-btn" title="Tarjeta anterior (←)">‹</button>
@@ -285,6 +335,18 @@ class DeckEngine {
             </div>
           </div>
         </div>
+
+        ${hasMultiple ? `
+          <!-- Navegación compacta (visible en móviles) -->
+          <div class="card-nav-row">
+            <button class="card-nav-mini" id="modal-prev-mini" aria-label="Tarjeta anterior">‹</button>
+            <span class="card-nav-counter">
+              ${currentIndex + 1} / ${activeCards.length}
+              <small>Deslizá la tarjeta para cambiar</small>
+            </span>
+            <button class="card-nav-mini" id="modal-next-mini" aria-label="Tarjeta siguiente">›</button>
+          </div>
+        ` : ''}
 
         <!-- Barra de acciones directas -->
         <div class="card-reveal-actions">
@@ -370,9 +432,16 @@ class DeckEngine {
     document.getElementById("modal-next-btn")?.addEventListener("click", () => {
       this.navigateCard(1);
     });
+    document.getElementById("modal-prev-mini")?.addEventListener("click", () => {
+      this.navigateCard(-1);
+    });
+    document.getElementById("modal-next-mini")?.addEventListener("click", () => {
+      this.navigateCard(1);
+    });
 
     // Eventos de botones
     document.getElementById("close-card-backdrop")?.addEventListener("click", () => this.closeRevealModal());
+    document.getElementById("reveal-close-fab")?.addEventListener("click", () => this.closeRevealModal());
     document.getElementById("return-deck-btn")?.addEventListener("click", () => this.closeRevealModal());
 
     document.getElementById("open-portal-btn")?.addEventListener("click", () => {
@@ -391,17 +460,20 @@ class DeckEngine {
       this.downloadCardQR(card);
     });
 
-    // Soporte de gestos táctiles (Swipe)
+    // Soporte de gestos táctiles (Swipe horizontal sin bloquear el scroll vertical)
     const cardWrapper = document.getElementById("revealed-card-3d");
     if (cardWrapper) {
       cardWrapper.addEventListener("touchstart", (e) => {
-        this.touchStartX = e.changedTouches[0].screenX;
+        this.touchStartX = e.changedTouches[0].clientX;
+        this.touchStartY = e.changedTouches[0].clientY;
       }, { passive: true });
 
       cardWrapper.addEventListener("touchend", (e) => {
-        this.touchEndX = e.changedTouches[0].screenX;
+        this.touchEndX = e.changedTouches[0].clientX;
         const diffX = this.touchEndX - this.touchStartX;
-        if (Math.abs(diffX) > 60) {
+        const diffY = e.changedTouches[0].clientY - this.touchStartY;
+        // Solo cuenta como swipe si el gesto es claramente horizontal
+        if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
           if (diffX > 0) {
             this.navigateCard(-1); // Swipe derecha -> anterior
           } else {
@@ -436,6 +508,7 @@ class DeckEngine {
       navigator.share(shareData)
         .then(() => {
           if (window.smartCardAudio) window.smartCardAudio.playPortalChime();
+          window.supportWidget?.nudge();
         })
         .catch((err) => {
           if (err.name !== 'AbortError') {
@@ -576,6 +649,7 @@ class DeckEngine {
       this.activeCardModal.classList.remove("active");
       this.activeCardModal.innerHTML = "";
     }
+    window.syncBodyLock?.();
   }
 
   copyCardLink(url) {
@@ -733,6 +807,7 @@ class DeckEngine {
 
       if (window.smartCardAudio) window.smartCardAudio.playPortalChime();
       window.showToast("✓ ¡Tarjeta digital PNG descargada!");
+      window.supportWidget?.nudge();
     } catch (e) {
       console.error("Error al exportar tarjeta QR:", e);
       window.showToast("Error al exportar la tarjeta.");
@@ -866,6 +941,16 @@ class DeckEngine {
   }
 
   setupDeckInteractions() {
+    // Re-renderizar el abanico/carrusel al cruzar el breakpoint (rotación de pantalla, resize)
+    const onCompactChange = () => {
+      if (this.viewMode === "spread") this.renderCurrentDeck();
+    };
+    if (this.compactQuery.addEventListener) {
+      this.compactQuery.addEventListener("change", onCompactChange);
+    } else if (this.compactQuery.addListener) {
+      this.compactQuery.addListener(onCompactChange);
+    }
+
     // Atajos de teclado accesibles
     window.addEventListener("keydown", (e) => {
       if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
@@ -878,7 +963,7 @@ class DeckEngine {
         } else {
           const altar = document.getElementById("altar-modal");
           if (altar && altar.classList.contains("open")) {
-            altar.classList.remove("open");
+            window.smartCardApp?.closeAltarModal();
           }
         }
       } else if (isModalOpen) {
